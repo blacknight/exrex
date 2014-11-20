@@ -21,7 +21,8 @@
 try:
     from future_builtins import map, range
 except:
-    pass
+    from itertools import imap as map
+    range = xrange
 from re import sre_parse, U
 from itertools import tee
 from random import choice,randint
