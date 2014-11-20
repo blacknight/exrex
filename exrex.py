@@ -46,10 +46,10 @@ CATEGORIES = {'category_space'  : sorted(sre_parse.WHITESPACE)
              ,'category_any'    : [unichr(x) for x in range(32, 123)]
              }
 
-REVERSE_CATEGORIES = {vv[1]:k for k,v
-                      in sre_parse.CATEGORIES.items() for vv
-                      in v[1]
-                      if v[0] == 'in' and vv[0] == 'category'}
+REVERSE_CATEGORIES = dict((vv[1], k)
+                          for k,v in sre_parse.CATEGORIES.items()
+                          for vv in v[1]
+                          if v[0] == 'in' and vv[0] == 'category')
 
 
 def comb(g, i):
@@ -283,7 +283,7 @@ def sre_to_string(sre_obj, paren=True):
             prefix = ''
             if len(i[1]) and i[1][0][0] == 'negate':
                 prefix = '^'
-            ret += u'[{0}{1}]'.format(prefix, sre_to_string(i[1], paren=paren))
+            ret += u'[%s%s]' % (prefix, sre_to_string(i[1], paren=paren))
         elif i[0] == 'literal':
             ret += unichr(i[1])
         elif i[0] == 'category':
@@ -303,29 +303,29 @@ def sre_to_string(sre_obj, paren=True):
                 prefix = '?:'
             branch = '|'.join(parts)
             if paren:
-                ret += '({0}{1})'.format(prefix, branch)
+                ret += '(%s%s)' % (prefix, branch)
             else:
-                ret += '{0}'.format(branch)
+                ret += '%s' % branch
         elif i[0] == 'subpattern':
             if i[1][0]:
-                ret += '({0})'.format(sre_to_string(i[1][1], paren=False))
+                ret += '(%s)' % sre_to_string(i[1][1], paren=False)
             else:
-                ret += '{0}'.format(sre_to_string(i[1][1], paren=paren))
+                ret += '%s' % sre_to_string(i[1][1], paren=paren)
         elif i[0] == 'not_literal':
-            ret += '[^{0}]'.format(unichr(i[1]))
+            ret += '[^%s]' % unichr(i[1])
         elif i[0] == 'max_repeat':
             if i[1][0] == i[1][1]:
-                range_str = '{{{0}}}'.format(i[1][0])
+                range_str = '{%s}' % i[1][0]
             else:
                 if i[1][0] == 0 and i[1][1] - i[1][0] == sre_parse.MAXREPEAT:
                     range_str = '*'
                 elif i[1][0] == 1 and i[1][1] - i[1][0] == sre_parse.MAXREPEAT-1:
                     range_str = '+'
                 else:
-                    range_str = '{{{0},{1}}}'.format(i[1][0], i[1][1])
+                    range_str = '{%s,%s}' % (i[1][0], i[1][1])
             ret += sre_to_string(i[1][2], paren=paren)+range_str
         elif i[0] == 'groupref':
-            ret += '\\{0}'.format(i[1])
+            ret += '\\%s' % i[1]
         elif i[0] == 'at':
             if i[1] == 'at_beginning':
                 ret += '^'
@@ -471,7 +471,7 @@ def __main__():
         exit(0)
     try:
         g = generate(args['regex'], args['limit'])
-    except Exception as e:
+    except Exception, e:
         stderr.write('[!] Error: %s\n' % e)
         exit(1)
     args['output'].write(next(g))

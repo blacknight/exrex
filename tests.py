@@ -131,7 +131,7 @@ if __name__ == '__main__':
     for i, (test_name, test) in enumerate(tests.items()):
         errors = test()
         if not errors:
-            print('[+] {0} test passed'.format(test_name))
+            print('[+] %s test passed' % test_name)
         else:
-            print('[-] {0} test failed'.format(test_name))
+            print('[-] %s test failed' % test_name)
             exit(i+1)
